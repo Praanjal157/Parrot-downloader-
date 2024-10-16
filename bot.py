@@ -1,8 +1,7 @@
 import os
 import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler
-from telegram.utils.request import Request
-from telegram import Bot, Update
+from telegram.utils.request import Request from telegram import Bot, Update
 from pymongo import MongoClient
 import requests
 from dotenv import load_dotenv
@@ -50,4 +49,30 @@ def download(update, context):
         # Save the file to MongoDB
         collection.insert_one({"file_url": file_url, "status": "failed"})
         # Send a message to the user
-        context.bot.send_message(chat_id=update.e
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Failed to download file!")
+
+# Define a function to handle the /status command
+def status(update, context):
+    # Get the file URL from the user
+    file_url = context.args[0]
+
+    # Check the status of the file in MongoDB
+    file_status = collection.find_one({"file_url": file_url})
+
+    # Send a message to the user
+    if file_status:
+        context.bot.send_message(chat_id=update.effective_chat.id, text=f"File status: {file_status['status']}")
+    else:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="File not found!")
+
+# Create a Telegram Updater instance
+updater = Updater(BOT_TOKEN, use_context=True)
+
+# Add handlers for the /start, /download, and /status commands
+updater.dispatcher.add_handler(CommandHandler("start", start))
+updater.dispatcher.add_handler(CommandHandler("download", download))
+updater.dispatcher.add_handler(CommandHandler("status", status))
+
+# Start the bot
+updater.start_polling()
+updater.idle()
