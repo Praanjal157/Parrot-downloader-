@@ -1,7 +1,8 @@
 import os
 import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler
-from telegram.utils.request import Request from telegram import Bot, Update
+from telegram.utils.request import Request
+from telegram import Bot, Update
 from pymongo import MongoClient
 import requests
 from dotenv import load_dotenv
